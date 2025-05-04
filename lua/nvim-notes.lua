@@ -6,19 +6,34 @@ local api = vim.api
 
 local M = {}
 local current = {}
-local delimiter = ";;"
-
--- TODO: CREATE "IS EDITING" LOGIC
--- ON SAVE CHECK TO INSERT OR UPDATE
+local is_editing = false
+local editing_id
 
 M.config = {
 	db_url = "nvim-notes.db",
-	note_symbol = "⭐",
+	symbol = "⭐",
+	delimiter = ";;",
 }
 
+---@type fun(): nil
+---@class Config
+---@field db_url string (Optional) Path to SQLite database
+---@field symbol string (Optional) Symbol to show in sign column
+---@field delimiter string (Optional) Delimiter for multiline notes
+---@param config Config
 M.setup = function(config)
-	if config and config.db_url then
-		M.config.db_url = config.db_url
+	if config then
+		if config.db_url then
+			M.config.db_url = config.db_url
+		end
+
+		if config.symbol then
+			M.config.symbol = config.symbol
+		end
+
+		if config.delimiter then
+			M.config.delimiter = config.delimiter
+		end
 	end
 
 	db = sqlite:open(M.config.db_url)
@@ -29,7 +44,7 @@ M.setup = function(config)
 	end
 
 	vim.fn.sign_define("Note", {
-		text = M.config.note_symbol,
+		text = M.config.symbol,
 		texthl = "Note",
 		numhl = "Note",
 	})
@@ -52,6 +67,7 @@ M.setup = function(config)
 end
 
 M.new = function()
+	is_editing = false
 	current.file = api.nvim_buf_get_name(0)
 	current.line = api.nvim_win_get_cursor(0)[1]
 
@@ -74,7 +90,13 @@ M.save = function()
 	current.note = "'" .. current.note .. "'"
 
 	local sql_str = current.file .. ", " .. current.line .. ", " .. current.note
-	local ok = db:eval("INSERT INTO notes (file, line, note) VALUES (" .. sql_str .. ")")
+	local ok
+
+	if is_editing then
+		ok = db:eval("UPDATE notes SET note = " .. current.note .. " WHERE id = " .. editing_id .. ";")
+	else
+		ok = db:eval("INSERT INTO notes (file, line, note) VALUES (" .. sql_str .. ")")
+	end
 
 	if not ok then
 		return
@@ -97,9 +119,11 @@ M.save = function()
 
 	local last_note = all_notes[table.maxn(all_notes)]
 	vim.fn.sign_place(last_note.id, "Note", "Note", last_note.file, { lnum = last_note.line })
+	is_editing = false
 end
 
 M.edit = function()
+	is_editing = true
 	db = sqlite:open(M.config.db_url)
 
 	if not db then
@@ -130,9 +154,10 @@ M.edit = function()
 
 	for _, note in ipairs(all_notes) do
 		if note.file == current.file and tonumber(note.line) == tonumber(current.line) then
+			editing_id = note.id
 			local lines = {}
 
-			for part in string.gmatch(note.note, "([^" .. delimiter .. "]+)") do
+			for part in string.gmatch(note.note, "([^" .. M.config.delimiter .. "]+)") do
 				table.insert(lines, part)
 			end
 
