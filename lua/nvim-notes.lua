@@ -17,9 +17,9 @@ M.config = {
 
 ---@type fun(): nil
 ---@class Config
----@field db_url string (Optional) Path to SQLite database
----@field symbol string (Optional) Symbol to show in sign column
----@field delimiter string (Optional) Delimiter for multiline notes
+---@field db_url? string (Optional) Path to SQLite database
+---@field symbol? string (Optional) Symbol to show in sign column
+---@field delimiter? string (Optional) Delimiter for multiline notes
 ---@param config Config
 M.setup = function(config)
 	if config then

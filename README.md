@@ -11,7 +11,7 @@ The notes are saved in a SQLite database, either a global database or project sp
 -- lazy
 
 {
-	dir = "kilavila/nvim-notes",
+	"kilavila/nvim-notes",
 	dependencies = { "kkharji/sqlite.lua" },
 	config = function()
 		require("nvim-notes").setup()
@@ -52,3 +52,5 @@ vim.keymap.set("n", "<leader>ns", ":NotesSave<cr>")
 vim.keymap.set("n", "<leader>ne", ":NotesEdit<cr>")
 vim.keymap.set("n", "<leader>nd", ":NotesDelete<cr>")
 ```
+
+To close a note(floating buffer) without saving, just close it like any other window with `:q`.
