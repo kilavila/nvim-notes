@@ -22,11 +22,11 @@ The notes are saved in a SQLite database, either a global database or project sp
 ## Configuration
 ```lua
 {
-    -- WARNING: By default nvim-notes creates a database in each project!
-    -- the following config will make nvim-notes use a global database for all projects
-    db_url = "~/nvim-notes.db", -- optional
-    symbol = "⭐", -- optional
-    delimiter = ";;", -- optional
+  -- WARNING: By default nvim-notes creates a database in each project!
+  -- the following config will make nvim-notes use a global database for all projects
+  db_url = "~/nvim-notes.db", -- optional
+  symbol = "⭐", -- optional
+  delimiter = ";;", -- optional
 }
 ```
 
@@ -54,3 +54,8 @@ vim.keymap.set("n", "<leader>nd", ":NotesDelete<cr>")
 ```
 
 To close a note(floating buffer) without saving, just close it like any other window with `:q`.
+
+## Todo
+
+- [ ] Listing all notes/searching for/in notes.
+- [ ] Jump to next/previous note in current buffer?
