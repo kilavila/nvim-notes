@@ -11,11 +11,11 @@ The notes are saved in a SQLite database, either a global database or project sp
 -- lazy
 
 {
-	"kilavila/nvim-notes",
-	dependencies = { "kkharji/sqlite.lua" },
-	config = function()
-		require("nvim-notes").setup()
-	end,
+  "kilavila/nvim-notes",
+  dependencies = { "kkharji/sqlite.lua" },
+  config = function()
+    require("nvim-notes").setup()
+  end,
 }
 ```
 
