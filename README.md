@@ -39,11 +39,11 @@ There's no default keybinds for nvim-notes, but here are the available commands:
 
 | Command | Description |
 |---------|-------------|
-| NotesNew | create a new note on the current line |
-| NotesEdit | edit the note of the current line |
-| NotesSave | save the current note you are in(floating buffer) and closes the floating buffer |
-| NotesDelete | delete the note on the current line |
-| NotesLoad | reload the notes for the current buffer(happens automatically on BuffEnter) |
+| NotesNew | Create a new note on the current line |
+| NotesEdit | Edit the note of the current line |
+| NotesSave | Save the current note you are in(floating buffer) and closes the floating buffer |
+| NotesDelete | Delete the note on the current line |
+| NotesLoad | Reload the notes for the current buffer(happens automatically on BuffEnter) |
 
 Exmaple mapping:
 ```lua
