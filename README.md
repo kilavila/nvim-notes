@@ -55,6 +55,15 @@ vim.keymap.set("n", "<leader>nd", ":NotesDelete<cr>")
 
 To close a note(floating buffer) without saving, just close it like any other window with `:q`.
 
+## SQLite
+
+You can also query the SQLite DB from the terminal if you need to.
+F.ex if you deleted a file with notes in them, or if you just want to extract all notes for some reason:
+
+```bash
+sqlite3 path/to/nvim-notes.db "SELECT * FROM notes;"
+```
+
 ## Todo
 
 - [ ] Listing all notes/searching for/in notes.
