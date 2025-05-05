@@ -37,13 +37,13 @@ Configuring nvim-notes like the example above makes nvim-notes use a global data
 ## Commands
 There's no default keybinds for nvim-notes, but here are the available commands:
 
-```
-NotesNew: create a new note on the current line.
-NotesEdit: edit the note of the current line.
-NotesSave: save the current note you are in(floating buffer) and closes the floating buffer.
-NotesDelete: delete the note on the current line.
-NotesLoad: reload the notes for the current buffer(happens automatically on BuffEnter).
-```
+| Command | Description |
+|---------|-------------|
+| NotesNew | create a new note on the current line |
+| NotesEdit | edit the note of the current line |
+| NotesSave | save the current note you are in(floating buffer) and closes the floating buffer |
+| NotesDelete | delete the note on the current line |
+| NotesLoad | reload the notes for the current buffer(happens automatically on BuffEnter) |
 
 Exmaple mapping:
 ```lua
