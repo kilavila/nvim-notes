@@ -7,35 +7,47 @@ local api = vim.api
 --- Functions and config for
 --- using nvim-notes plugin.
 local M = {}
+
 ---@type Current|table<nil>
-local current = {}
+local current_note = {}
+
 ---@type boolean
 local is_editing = false
+
 ---@type number
 local editing_id
 
 ---@type NvimNotesConfig
 M.config = {
   db_url = "nvim-notes.db",
-  symbol = "⭐",
   delimiter = ";;",
+  empty_line = "||EMPTY-LINE||",
+  symbol = "⭐",
+  window = {
+    height = 0.7,
+    width = 0.8,
+  },
 }
+
+---@type fun(): nil Merge M.config and user config
+---@param default NvimNotesConfig
+---@param user_config NvimNotesConfig
+M._merge_tables = function(default, user_config)
+  for idx, value in pairs(user_config) do
+    if type(value) == "table" and type(default[idx]) == "table" then
+      -- merge nested tables
+      M._merge_tables(default[idx], value)
+    else
+      default[idx] = value
+    end
+  end
+end
 
 ---@type fun(): nil
 ---@param config NvimNotesConfig
 M.setup = function(config)
   if config then
-    if config.db_url then
-      M.config.db_url = config.db_url
-    end
-
-    if config.symbol then
-      M.config.symbol = config.symbol
-    end
-
-    if config.delimiter then
-      M.config.delimiter = config.delimiter
-    end
+    M._merge_tables(M.config, config)
   end
 
   sql.setup(M.config.db_url)
@@ -57,10 +69,10 @@ end
 ---@type fun(): nil Open the floating buffer for creating a new note
 M.new = function()
   is_editing = false
-  current.file = api.nvim_buf_get_name(0)
-  current.line = api.nvim_win_get_cursor(0)[1]
+  current_note.file = api.nvim_buf_get_name(0)
+  current_note.line = api.nvim_win_get_cursor(0)[1]
 
-  floating_window.open()
+  floating_window.open(M.config.window)
 end
 
 ---@type fun(): boolean|nil Update existing note(if is_editing) or save new note
@@ -69,9 +81,9 @@ local _save = function()
   local ok
 
   if is_editing then
-    ok = sql.update(editing_id, current.note)
+    ok = sql.update(editing_id, current_note.note)
   else
-    ok = sql.create(current)
+    ok = sql.create(current_note)
   end
 
   return ok
@@ -81,7 +93,22 @@ end
 M.save = function()
   ---@type string[]
   local txt = api.nvim_buf_get_lines(0, 0, -1, false)
-  current.note = table.concat(txt, ";;")
+  for idx, line in ipairs(txt) do
+    if string.len(line) == 0 then
+      -- Replace all empty lines with ||EMPTY-LINE|| to preserve empty lines
+      txt[idx] = M.config.empty_line
+    end
+  end
+
+  -- Escape " with \
+  -- Replace ' and ` with \"
+  -- TODO: Find a better solution
+  -- preferably escaping rather than replacing
+  -- in order to keep the notes in their original state
+  current_note.note = table.concat(txt, ";;")
+  current_note.note = string.gsub(current_note.note, '"', '\\"')
+  current_note.note = string.gsub(current_note.note, "'", '\\"')
+  current_note.note = string.gsub(current_note.note, "`", '\\"')
 
   ---@type boolean|nil
   local saved = _save()
@@ -90,7 +117,7 @@ M.save = function()
   end
 
   floating_window.close()
-  current = {}
+  current_note = {}
 
   ---@type table<NvimNote>|nil
   local notes = sql.get_all()
@@ -126,23 +153,33 @@ M.edit = function()
     table.insert(all_notes, v)
   end
 
-  current.file = api.nvim_buf_get_name(0)
-  current.line = api.nvim_win_get_cursor(0)[1]
+  current_note.file = api.nvim_buf_get_name(0)
+  current_note.line = api.nvim_win_get_cursor(0)[1]
 
   ---@type number
-  local buf = floating_window.open()
+  local buf = floating_window.open(M.config.window)
   if not buf then
     return
   end
 
   for _, note in ipairs(all_notes) do
-    if note.file == current.file and tonumber(note.line) == tonumber(current.line) then
+    if note.file == current_note.file and tonumber(note.line) == tonumber(current_note.line) then
       editing_id = note.id
+
+      note.note = string.gsub(note.note, '\\"', '"')
+
       ---@type table<string>
       local lines = {}
 
       for part in string.gmatch(note.note, "([^" .. M.config.delimiter .. "]+)") do
         table.insert(lines, part)
+      end
+
+      -- show empty lines as empty
+      for idx, line in ipairs(lines) do
+        if line == M.config.empty_line then
+          lines[idx] = ""
+        end
       end
 
       vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
@@ -164,18 +201,18 @@ M.delete = function()
     table.insert(all_notes, v)
   end
 
-  current.file = api.nvim_buf_get_name(0)
-  current.line = api.nvim_win_get_cursor(0)[1]
+  current_note.file = api.nvim_buf_get_name(0)
+  current_note.line = api.nvim_win_get_cursor(0)[1]
 
   for _, note in ipairs(all_notes) do
-    if note.file == current.file and tonumber(note.line) == tonumber(current.line) then
+    if note.file == current_note.file and tonumber(note.line) == tonumber(current_note.line) then
       ---@type boolean|nil
       local ok = sql.delete(note.id)
       if not ok then
         return
       end
 
-      vim.fn.sign_unplace("Note", { buffer = current.file, id = note.id })
+      vim.fn.sign_unplace("Note", { buffer = current_note.file, id = note.id })
     end
   end
 end

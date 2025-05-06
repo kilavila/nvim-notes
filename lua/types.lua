@@ -1,9 +1,15 @@
 ---@meta
 
+---@class NvimWindowConfig
+---@field height? number
+---@field width? number
+
 ---@class NvimNotesConfig
 ---@field db_url? string (Optional) Path to SQLite database
 ---@field symbol? string (Optional) Symbol to show in sign column
 ---@field delimiter? string (Optional) Delimiter for multiline notes
+---@field empty_line? string (Optional) Indicates empty lines
+---@field window? NvimWindowConfig
 
 ---@class Current
 ---@field file string Path to buffer

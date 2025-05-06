@@ -22,17 +22,35 @@ The notes are saved in a SQLite database, either a global database or project sp
 ## Configuration
 ```lua
 {
+  -- All the configs are optional
+
   -- WARNING: By default nvim-notes creates a database in each project!
   -- the following config will make nvim-notes use a global database for all projects
-  db_url = "~/nvim-notes.db", -- optional
-  symbol = "⭐", -- optional
-  delimiter = ";;", -- optional
+
+  -- Path to SQLite DB
+  -- "nvim-notes.db"   = new DB in each project(default)
+  -- "~/nvim-notes.db" = global DB in home dir
+  db_url = "~/nvim-notes.db",
+
+  -- What symbol to show in the sign column
+  -- Can be whatever: 📌 ⭐ 👉 ▶️ 🔖
+  symbol = "⭐",
+
+  -- Notes are saved in the DB as one long string
+  -- the delimiter indicates line-breaks
+  delimiter = ";;",
+
+  -- Indicates empty lines in order
+  -- to keep the notes format
+  empty_line = "||EMPTY-LINE||",
+
+  -- Size of the floating window
+  window = {
+    height = 0.7,
+    width = 0.8,
+  },
 }
 ```
-
-### db_url
-By default `db_url` is `nvim-notes.db`, which will create a new database in each project you open with Neovim!
-Configuring nvim-notes like the example above makes nvim-notes use a global database.
 
 ## Commands
 There's no default keybinds for nvim-notes, but here are the available commands:
@@ -64,7 +82,13 @@ F.ex if you deleted a file with notes in them, or if you just want to extract al
 sqlite3 path/to/nvim-notes.db "SELECT * FROM notes;"
 ```
 
+## Issues
+Single quotes: ' and backticks: ` have been a problem, so for now they will be replaced with quotes: ".
+
+[Create a new issue](https://github.com/kilavila/nvim-notes/issues) if you have any other problems.
+
 ## Todo
 
+- [ ] Escape special characters.
 - [ ] Listing all notes/searching for/in notes.
 - [ ] Jump to next/previous note in current buffer?

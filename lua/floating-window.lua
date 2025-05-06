@@ -7,7 +7,8 @@ local win
 M = {}
 
 ---@type fun(): number Open a floating buffer
-M.open = function()
+---@param window NvimWindowConfig
+M.open = function(window)
   buf = api.nvim_create_buf(false, true)
   ---@type number
   local border_buf = api.nvim_create_buf(false, true)
@@ -19,9 +20,9 @@ M.open = function()
   local height = api.nvim_get_option("lines")
 
   ---@type number
-  local win_height = math.ceil(height * 0.5 - 4)
+  local win_height = math.ceil(height * window.height - 4)
   ---@type number
-  local win_width = math.ceil(width * 0.4)
+  local win_width = math.ceil(width * window.width)
   ---@type number
   local row = math.ceil((height - win_height) / 2 - 1)
   ---@type number
